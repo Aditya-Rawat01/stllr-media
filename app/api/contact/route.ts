@@ -2,6 +2,7 @@ import { db } from "@/lib/db";
 import { leads } from "@/lib/db/schema";
 import { z } from "zod";
 import { Resend } from "resend";
+import { formatEnquiryType } from "@/lib/format";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -21,6 +22,9 @@ export async function POST(req: Request) {
   if (!parsed.success) return Response.json({ error: parsed.error.flatten() }, { status: 400 });
 
   const { email, phone, enquiryDetails, enquiryType } = parsed.data;
+
+  // Format enquiry type for display
+  const displayEnquiryType = formatEnquiryType(enquiryType);
 
   // 1. store lead
   let leadId: string;
@@ -45,15 +49,15 @@ export async function POST(req: Request) {
         from,
         to: email,
         subject: "We received your enquiry — STLLR Media",
-        html: `<p>Hi,</p><p>Thanks for reaching out about <b>${enquiryType}</b>. We’ve received:</p><blockquote>${enquiryDetails}</blockquote><p>We’ll contact you at ${phone} shortly.</p><p>— STLLR Media, weavers of light • stllrmedia@gmail.com</p>`,
+        html: `<p>Hi,</p><p>Thanks for reaching out about <b>${displayEnquiryType}</b>. We've received:</p><blockquote>${enquiryDetails}</blockquote><p>We'll contact you at ${phone} shortly.</p><p>— STLLR Media, weavers of light • stllrmedia@gmail.com</p>`,
       }) as any;
       if (cust.error) throw new Error(`customer mail: ${cust.error.message || JSON.stringify(cust.error)}`);
 
       const admin = await resend.emails.send({
         from,
         to: adminTo,
-        subject: `New lead: ${enquiryType} — ${email}`,
-        html: `<p>New lead ${leadId}</p><ul><li>Email: ${email}</li><li>Phone: ${phone}</li><li>Type: ${enquiryType}</li><li>Details: ${enquiryDetails}</li></ul>`,
+        subject: `New lead: ${displayEnquiryType} — ${email}`,
+        html: `<p>New lead ${leadId}</p><ul><li>Email: ${email}</li><li>Phone: ${phone}</li><li>Type: ${displayEnquiryType}</li><li>Details: ${enquiryDetails}</li></ul>`,
       }) as any;
       if (admin.error) throw new Error(`admin mail: ${admin.error.message || JSON.stringify(admin.error)}`);
 

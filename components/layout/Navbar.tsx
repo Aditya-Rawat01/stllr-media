@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { SignInButton, SignUpButton, UserButton, Show, useUser } from "@clerk/nextjs";
 
@@ -9,13 +10,15 @@ const NAV_LINKS = [
   { label: "About",    href: "#about" },
   { label: "Work",     href: "#work" },
   { label: "Services", href: "#services" },
-  { label: "Events",   href: "#events" },
+  { label: "Events",   href: "/events" },
   { label: "Booking",  href: "#booking" },
 ];
 
 const scrollToId = (href: string) => {
+  if (href.startsWith("/")) return false;
   const id = href.replace(/^#/, "");
   document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" });
+  return true;
 };
 
 /*
@@ -25,6 +28,7 @@ const scrollToId = (href: string) => {
 export const NAVBAR_H = 86; /* px */
 
 export default function Navbar() {
+  const router = useRouter();
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const { user } = useUser();
@@ -98,13 +102,23 @@ export default function Navbar() {
           >
             {NAV_LINKS.map((link) => (
               <li key={link.label}>
-                <button
-                  onClick={() => scrollToId(link.href)}
-                  className="group relative text-[10.5px] font-medium tracking-[0.2em] uppercase text-[#f0ede8]/55 transition-colors duration-200 hover:text-[#f0ede8]"
-                >
-                  {link.label}
-                  <span className="absolute -bottom-0.5 left-0 h-px w-0 bg-[#e63030] transition-all duration-300 group-hover:w-full" />
-                </button>
+                {link.href.startsWith("/") ? (
+                  <Link
+                    href={link.href}
+                    className="group relative text-[10.5px] font-medium tracking-[0.2em] uppercase text-[#f0ede8]/55 transition-colors duration-200 hover:text-[#f0ede8]"
+                  >
+                    {link.label}
+                    <span className="absolute -bottom-0.5 left-0 h-px w-0 bg-[#e63030] transition-all duration-300 group-hover:w-full" />
+                  </Link>
+                ) : (
+                  <button
+                    onClick={() => scrollToId(link.href)}
+                    className="group relative text-[10.5px] font-medium tracking-[0.2em] uppercase text-[#f0ede8]/55 transition-colors duration-200 hover:text-[#f0ede8]"
+                  >
+                    {link.label}
+                    <span className="absolute -bottom-0.5 left-0 h-px w-0 bg-[#e63030] transition-all duration-300 group-hover:w-full" />
+                  </button>
+                )}
               </li>
             ))}
             {isAdmin && (
@@ -185,15 +199,28 @@ export default function Navbar() {
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ delay: 0.04 + i * 0.05, duration: 0.32, ease: [0.16, 1, 0.3, 1] }}
                   >
-                    <button
-                      onClick={() => { setMenuOpen(false); scrollToId(link.href); }}
-                      className="flex w-full items-center justify-between border-b border-[#1f1f1f] py-[18px] font-[var(--font-bebas-neue)] text-[2rem] tracking-wide text-[#f0ede8]/70 transition-colors hover:text-[#f0ede8]"
-                    >
-                      {link.label}
-                      <svg viewBox="0 0 11 11" width={13} height={13} fill="none" stroke="currentColor" strokeWidth={1.2} className="opacity-25" aria-hidden="true">
-                        <path d="M1 10 L10 1 M10 1 H4 M10 1 V7" />
-                      </svg>
-                    </button>
+                    {link.href.startsWith("/") ? (
+                      <Link
+                        href={link.href}
+                        onClick={() => setMenuOpen(false)}
+                        className="flex w-full items-center justify-between border-b border-[#1f1f1f] py-[18px] font-[var(--font-bebas-neue)] text-[2rem] tracking-wide text-[#f0ede8]/70 transition-colors hover:text-[#f0ede8]"
+                      >
+                        {link.label}
+                        <svg viewBox="0 0 11 11" width={13} height={13} fill="none" stroke="currentColor" strokeWidth={1.2} className="opacity-25" aria-hidden="true">
+                          <path d="M1 10 L10 1 M10 1 H4 M10 1 V7" />
+                        </svg>
+                      </Link>
+                    ) : (
+                      <button
+                        onClick={() => { setMenuOpen(false); scrollToId(link.href); }}
+                        className="flex w-full items-center justify-between border-b border-[#1f1f1f] py-[18px] font-[var(--font-bebas-neue)] text-[2rem] tracking-wide text-[#f0ede8]/70 transition-colors hover:text-[#f0ede8]"
+                      >
+                        {link.label}
+                        <svg viewBox="0 0 11 11" width={13} height={13} fill="none" stroke="currentColor" strokeWidth={1.2} className="opacity-25" aria-hidden="true">
+                          <path d="M1 10 L10 1 M10 1 H4 M10 1 V7" />
+                        </svg>
+                      </button>
+                    )}
                   </motion.li>
                 ))}
                 {isAdmin && (
