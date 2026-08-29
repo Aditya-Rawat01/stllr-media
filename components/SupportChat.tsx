@@ -33,7 +33,7 @@ export default function SupportChat() {
         className="fixed bottom-6 right-6 z-50 rounded-full bg-black text-white px-5 py-3 text-sm font-medium shadow-lg hover:bg-zinc-800 dark:bg-white dark:text-black"
         aria-label="Open support chat"
       >
-        Support
+        STLLR Support
       </button>
 
       {open && (
