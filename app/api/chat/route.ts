@@ -4,6 +4,7 @@ import { chatTools } from "@/lib/ai/tools";
 import { SYSTEM_PROMPT } from "@/lib/ai/prompt";
 
 export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
 export const maxDuration = 30;
 
 // GET = health/tools list (ponytail: one route, two verbs)

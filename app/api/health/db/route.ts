@@ -2,6 +2,7 @@ import { db } from "@/lib/db";
 import { sql } from "drizzle-orm";
 
 export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
 export async function GET() {
   const t0 = Date.now();
   try {
