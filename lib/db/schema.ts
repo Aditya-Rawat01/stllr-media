@@ -1,4 +1,4 @@
-import { pgTable, uuid, text, integer, boolean, timestamp, pgEnum, index } from "drizzle-orm/pg-core";
+import { pgTable, uuid, text, integer, boolean, timestamp, pgEnum, index, varchar } from "drizzle-orm/pg-core";
 
 export const serviceCategoryEnum = pgEnum("service_category", ["photography", "videography", "editing", "combo", "drone"]);
 export const eventStatusEnum = pgEnum("event_status", ["upcoming", "ongoing", "completed", "cancelled"]);
@@ -60,3 +60,45 @@ export const faqs = pgTable("faqs", {
   isPublished: boolean("is_published").default(true).notNull(),
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
 });
+
+export const enquiryTypeEnum = pgEnum("enquiry_type", ["general", "videography", "photography", "video_editing", "drone", "combo", "brand_campaign", "corporate"]);
+
+export const leads = pgTable("leads", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  email: text("email").notNull(),
+  phone: varchar("phone", { length: 20 }).notNull(),
+  enquiryDetails: text("enquiry_details").notNull(),
+  enquiryType: enquiryTypeEnum("enquiry_type").default("general").notNull(),
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+}, (t) => [index("leads_email_idx").on(t.email), index("leads_created_idx").on(t.createdAt)]);
+
+export const bookingStatusEnum = pgEnum("booking_status", ["pending", "confirmed", "in_progress", "completed", "cancelled"]);
+
+export const bookings = pgTable("bookings", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  serviceId: uuid("service_id").references(() => services.id),
+  customerEmail: text("customer_email").notNull(),
+  customerName: text("customer_name").notNull(),
+  customerPhone: varchar("customer_phone", { length: 20 }).notNull(),
+  bookingDate: timestamp("booking_date", { withTimezone: true }).notNull(),
+  startTime: text("start_time").notNull(), // "09:00" 30m slot
+  endTime: text("end_time").notNull(), // "13:00"
+  status: bookingStatusEnum("status").default("pending").notNull(),
+  location: text("location").notNull(),
+  city: text("city").notNull(),
+  notes: text("notes"),
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+}, (t) => [index("bookings_date_idx").on(t.bookingDate), index("bookings_status_idx").on(t.status), index("bookings_city_idx").on(t.city)]);
+
+export const userRoleEnum = pgEnum("user_role", ["customer", "admin"]);
+
+export const users = pgTable("users", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  clerkId: text("clerk_id").unique().notNull(),
+  email: text("email").notNull(),
+  name: text("name"),
+  role: userRoleEnum("role").default("customer").notNull(),
+  avatarUrl: text("avatar_url"),
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
+}, (t) => [index("users_clerk_idx").on(t.clerkId), index("users_email_idx").on(t.email)]);

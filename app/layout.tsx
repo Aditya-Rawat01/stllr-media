@@ -1,3 +1,4 @@
+import { ClerkProvider } from "@clerk/nextjs";
 import type { Metadata } from "next";
 import { Bebas_Neue, DM_Sans } from "next/font/google";
 import "./globals.css";
@@ -32,7 +33,11 @@ export default function RootLayout({ children }: LayoutProps) {
       className={`${bebasNeue.variable} ${dmSans.variable} min-h-full antialiased`}
     >
       <body className="min-h-screen flex flex-col bg-[#080808] text-[#f0ede8]">
-        {children}
+        
+        <ClerkProvider>
+          {children}
+        </ClerkProvider>
+      
       </body>
     </html>
   );
