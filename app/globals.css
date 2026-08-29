@@ -43,13 +43,14 @@ html {
   scroll-behavior: smooth;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  overflow-x: clip;
 }
 
 body {
   background-color: var(--color-black);
   color: var(--color-white);
   font-family: var(--font-sans), system-ui, sans-serif;
-  overflow-x: hidden;
+  overflow-x: clip;
 }
 
 /* ─── Scrollbar ─────────────────────────────────────────────────────────── */
