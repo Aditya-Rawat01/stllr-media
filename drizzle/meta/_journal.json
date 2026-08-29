@@ -15,6 +15,20 @@
       "when": 1788003669032,
       "tag": "0001_careful_nehzno",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1788006343716,
+      "tag": "0002_lonely_psynapse",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1788007343065,
+      "tag": "0003_flaky_morlocks",
+      "breakpoints": true
     }
   ]
 }

@@ -1,9 +1,26 @@
 import Image from "next/image";
 import SupportChat from "@/components/SupportChat";
+import { SignInButton, SignUpButton, UserButton, Show } from "@clerk/nextjs";
 
-export default function Home() {
-    return (
+export default async function Home({ searchParams }: { searchParams?: Promise<Record<string, string>> }) {
+  const params = searchParams ? await searchParams : {};
+  const isNotAdmin = params.error === "not_admin";
+  return (
         <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
+            <header className="w-full max-w-3xl mx-auto px-6 py-4 flex justify-end gap-3">
+              <Show when="signed-out">
+                <SignInButton mode="modal"><button className="rounded-full border px-4 py-2 text-sm">Sign In</button></SignInButton>
+                <SignUpButton mode="modal"><button className="rounded-full bg-black text-white px-4 py-2 text-sm dark:bg-white dark:text-black">Sign Up</button></SignUpButton>
+              </Show>
+              <Show when="signed-in">
+                <UserButton />
+              </Show>
+            </header>
+            {isNotAdmin && (
+              <div className="w-full max-w-3xl mx-auto px-6 pt-4">
+                <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">You are not admin — access denied.</div>
+              </div>
+            )}
             <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
                 <Image
                     className="dark:invert h-5 w-[100px]"

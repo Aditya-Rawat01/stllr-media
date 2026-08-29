@@ -71,3 +71,34 @@ export const leads = pgTable("leads", {
   enquiryType: enquiryTypeEnum("enquiry_type").default("general").notNull(),
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
 }, (t) => [index("leads_email_idx").on(t.email), index("leads_created_idx").on(t.createdAt)]);
+
+export const bookingStatusEnum = pgEnum("booking_status", ["pending", "confirmed", "in_progress", "completed", "cancelled"]);
+
+export const bookings = pgTable("bookings", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  serviceId: uuid("service_id").references(() => services.id),
+  customerEmail: text("customer_email").notNull(),
+  customerName: text("customer_name").notNull(),
+  customerPhone: varchar("customer_phone", { length: 20 }).notNull(),
+  bookingDate: timestamp("booking_date", { withTimezone: true }).notNull(),
+  startTime: text("start_time").notNull(), // "09:00" 30m slot
+  endTime: text("end_time").notNull(), // "13:00"
+  status: bookingStatusEnum("status").default("pending").notNull(),
+  location: text("location").notNull(),
+  city: text("city").notNull(),
+  notes: text("notes"),
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+}, (t) => [index("bookings_date_idx").on(t.bookingDate), index("bookings_status_idx").on(t.status), index("bookings_city_idx").on(t.city)]);
+
+export const userRoleEnum = pgEnum("user_role", ["customer", "admin"]);
+
+export const users = pgTable("users", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  clerkId: text("clerk_id").unique().notNull(),
+  email: text("email").notNull(),
+  name: text("name"),
+  role: userRoleEnum("role").default("customer").notNull(),
+  avatarUrl: text("avatar_url"),
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
+}, (t) => [index("users_clerk_idx").on(t.clerkId), index("users_email_idx").on(t.email)]);
