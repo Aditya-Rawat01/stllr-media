@@ -1,0 +1,45 @@
+name: auto-merge
+on:
+  push:
+    branches-ignore: [main]
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  auto-pr-merge:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Create PR if not exists and enable auto-merge
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          BRANCH="${GITHUB_REF_NAME}"
+          echo "Branch: $BRANCH"
+
+          # check if PR already exists
+          PR_NUM=$(gh pr list --head "$BRANCH" --base main --json number --jq '.[0].number' || echo "")
+          if [ -z "$PR_NUM" ] || [ "$PR_NUM" = "null" ]; then
+            echo "Creating PR $BRANCH -> main"
+            gh pr create --base main --head "$BRANCH" --title "Auto: $BRANCH → main" --body "Auto PR from sister branch. CI must pass to merge." || echo "PR create failed or exists"
+            PR_NUM=$(gh pr list --head "$BRANCH" --base main --json number --jq '.[0].number')
+          else
+            echo "PR #$PR_NUM already exists"
+          fi
+
+          if [ -n "$PR_NUM" ] && [ "$PR_NUM" != "null" ]; then
+            echo "Enabling auto-merge (squash) for PR #$PR_NUM (retry for unstable status)"
+            for i in 1 2 3 4 5; do
+              if gh pr merge --auto --squash "$PR_NUM"; then
+                echo "auto-merge enabled"
+                break
+              fi
+              echo "attempt $i failed, waiting 6s... (check Settings → General → ☑ Allow auto-merge and Branches → main requires ci)"
+              sleep 6
+            done
+          fi
