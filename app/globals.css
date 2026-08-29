@@ -1,26 +1,75 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
+/* ─── Design Tokens ─────────────────────────────────────────────────────── */
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  /* Colors */
+  --color-black:        #080808;
+  --color-surface:      #111111;
+  --color-border:       #1f1f1f;
+  --color-muted:        #555555;
+  --color-white:        #f0ede8;
+  --color-accent:       #e63030;
+  --color-accent-dim:   #a82020;
+
+  /* Typography */
+  --font-display: var(--font-bebas-neue);
+  --font-sans:    var(--font-dm-sans);
+
+  /* Font sizes — display scale */
+  --text-display-2xl: clamp(5rem, 12vw, 11rem);
+  --text-display-xl:  clamp(3.5rem, 8vw, 7rem);
+  --text-display-lg:  clamp(2rem, 4vw, 3.5rem);
+
+  /* Letter spacing */
+  --tracking-display: -0.02em;
+  --tracking-wide:     0.15em;
+  --tracking-widest:   0.25em;
+
+  /* Easing */
+  --ease-smooth:   cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-inout:    cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+/* ─── Base ──────────────────────────────────────────────────────────────── */
+@layer base {
+  *, *::before, *::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+html {
+  scroll-behavior: smooth;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
+
+body {
+  background-color: var(--color-black);
+  color: var(--color-white);
+  font-family: var(--font-sans), system-ui, sans-serif;
+  overflow-x: hidden;
+}
+
+/* ─── Scrollbar ─────────────────────────────────────────────────────────── */
+::-webkit-scrollbar {
+  width: 4px;
+}
+::-webkit-scrollbar-track {
+  background: var(--color-black);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--color-border);
+  border-radius: 2px;
+}
+
+/* ─── Selection ─────────────────────────────────────────────────────────── */
+::selection {
+  background-color: var(--color-accent);
+  color: var(--color-black);
+}
+
+/* ─── Utility: no-scrollbar ─────────────────────────────────────────────── */
+.no-scrollbar::-webkit-scrollbar { display: none; }
+.no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
