@@ -59,7 +59,7 @@ export default function SelectedWork() {
     >
       {/* stickyviewport — stays fixed while user scrolls vertically */}
       <div className="sticky top-0 flex h-screen flex-col overflow-hidden">
-        <div className="mx-auto flex w-full max-w-[1440px] shrink-0 items-center justify-between gap-6 border-b border-[#1a1a1a] px-6 pb-6 pt-8 sm:px-10 sm:pb-7 sm:pt-10 lg:px-[6vw] lg:pb-7 lg:pt-10">
+        <div className="mx-auto flex w-full max-w-[1440px] shrink-0 items-center justify-between gap-6 px-6 pb-6 pt-8 sm:px-10 sm:pb-7 sm:pt-10 lg:px-[6vw] lg:pb-7 lg:pt-10">
           <div className="flex items-center gap-4 sm:gap-5">
             <span className="font-[var(--font-dm-sans)] text-[10px] font-medium tracking-[0.28em] text-[#f0ede8]/30">02</span>
             <span className="hidden h-px w-10 bg-[#f0ede8]/15 sm:block" aria-hidden="true" />
@@ -77,7 +77,7 @@ export default function SelectedWork() {
               <span className="tabular-nums">04</span>
             </span>
             <Link
-              href="#work"
+              href="/gallery"
               className="group inline-flex items-center gap-2 font-[var(--font-dm-sans)] text-[10px] font-medium tracking-[0.2em] uppercase text-[#f0ede8]/70 transition-colors hover:text-[#f0ede8]"
             >
               View All Work

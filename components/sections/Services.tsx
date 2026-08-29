@@ -88,7 +88,7 @@ export default function Services() {
     >
       <div className="mx-auto max-w-[1440px] px-6 sm:px-10 lg:px-[6vw]">
         {/* eyebrow */}
-        <div className="flex items-center justify-between gap-6 border-b border-[#1a1a1a] pb-6 pt-12 sm:pb-7 sm:pt-14 lg:pt-16">
+        <div className="flex items-center justify-between gap-6 pb-6 pt-12 sm:pb-7 sm:pt-14 lg:pt-16">
           <div className="flex items-center gap-4 sm:gap-5">
             <span className="font-[var(--font-dm-sans)] text-[10px] font-medium tracking-[0.28em] text-[#f0ede8]/30">03</span>
             <span className="hidden h-px w-10 bg-[#f0ede8]/15 sm:block" aria-hidden="true" />
@@ -114,7 +114,7 @@ export default function Services() {
 
         {/* FULL-WIDTH editorial list — hover only over this list shows preview */}
         <div
-          className="mt-10 border-t border-[#1a1a1a] sm:mt-12 lg:mt-14"
+          className="mt-10 sm:mt-12 lg:mt-14"
           onMouseEnter={() => setHovered(true)}
           onMouseLeave={() => setHovered(false)}
           onMouseMove={handleMouseMove}
@@ -229,9 +229,8 @@ export default function Services() {
           </div>
         </div>
 
-        {/* close hairline */}
-        <div className="mt-10 h-px w-full bg-[#1a1a1a] sm:mt-12 lg:mt-14" aria-hidden="true" />
-        <div className="h-8 sm:h-10 lg:h-12" aria-hidden="true" />
+        {/* consistent bottom spacing — no trailing hairline; next section's eyebrow is the single divider */}
+        <div className="h-12 sm:h-14 lg:h-16" aria-hidden="true" />
       </div>
 
       {/* FLOATING PREVIEW — fixed, does not affect layout, hidden by default */}
