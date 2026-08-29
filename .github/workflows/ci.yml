@@ -1,0 +1,32 @@
+name: ci
+on:
+  push:
+    branches-ignore: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  ci:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+      - run: npx playwright install --with-deps chromium
+      - name: start server
+        run: |
+          npm run start &
+          npx wait-on http://localhost:3000/api/healthy --timeout 60000
+      - name: health ping
+        run: curl -f http://localhost:3000/api/healthy
+      - name: e2e landing
+        run: npx playwright test
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: playwright-report
+          path: playwright-report
