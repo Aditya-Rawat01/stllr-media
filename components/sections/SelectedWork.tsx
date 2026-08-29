@@ -163,13 +163,19 @@ export default function SelectedWork() {
                           aria-hidden="true"
                           className={[
                             "absolute right-4 top-4 font-[var(--font-bebas-neue)] text-[11px] tracking-[0.22em]",
-                            shouldReduce ? "" : "transition-opacity duration-500",
-                            isActive ? "text-[#f0ede8]/30" : "text-[#f0ede8]/15",
+                            shouldReduce ? "" : "transition-all duration-500",
+                            isActive ? "text-[#f0ede8]/30 opacity-100" : "opacity-0",
                           ].join(" ")}
                         >
                           {project.id}
                         </span>
-                        <div className="absolute inset-x-0 bottom-0 flex items-end justify-between gap-4 p-5 sm:p-6 lg:p-7">
+                        <div
+                          className={[
+                            "absolute inset-x-0 bottom-0 flex items-end justify-between gap-4 p-5 sm:p-6 lg:p-7",
+                            shouldReduce ? "" : "transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)]",
+                            isActive ? "translate-y-0 opacity-100" : "translate-y-3 opacity-0 pointer-events-none",
+                          ].join(" ")}
+                        >
                           <div className="min-w-0">
                             <h3 className="font-[var(--font-bebas-neue)] text-[1.55rem] leading-none tracking-[0.02em] text-[#f0ede8] sm:text-[1.75rem] lg:text-[1.9rem]">
                               {project.title}
@@ -180,11 +186,7 @@ export default function SelectedWork() {
                           </div>
                           <span
                             aria-hidden="true"
-                            className={[
-                              "hidden h-7 w-7 shrink-0 items-center justify-center border sm:inline-flex",
-                              shouldReduce ? "" : "transition-all duration-300",
-                              isActive ? "border-[#f0ede8]/20 bg-[#f0ede8]/5 text-[#f0ede8]/70" : "border-transparent text-[#f0ede8]/20",
-                            ].join(" ")}
+                            className="hidden h-7 w-7 shrink-0 items-center justify-center border border-[#f0ede8]/20 bg-[#f0ede8]/5 text-[#f0ede8]/70 sm:inline-flex"
                           >
                             <svg viewBox="0 0 11 11" width={10} height={10} fill="none" stroke="currentColor" strokeWidth={1.3}>
                               <path d="M2 8.5 L8.5 2 M8.5 2 H3.5 M8.5 2 V7" />
