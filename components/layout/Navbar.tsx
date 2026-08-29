@@ -37,32 +37,50 @@ export default function Navbar() {
   return (
     <>
       {/* ── Header ───────────────────────────────────────────────
-          Solid background so hero text never shows through / mixes
-          behind the nav. Subtle border + shadow for separation.
+          Full bar at top; on scroll transforms to centered capsule (pill)
+          — floating, blurred, editorial. Hero offset kept via NAVBAR_H export.
       ─────────────────────────────────────────────────────────── */}
-      <header
+      <motion.header
+        initial={false}
+        animate={{
+          height: scrolled ? 56 : NAVBAR_H,
+        }}
+        transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
         className={[
-          "fixed top-0 left-0 right-0 z-50 border-b transition-all duration-300",
+          "fixed z-50 transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)]",
           scrolled
-            ? "bg-[#080808] border-[#1e1e1e] shadow-[0_4px_30px_rgba(0,0,0,0.6)]"
-            : "bg-[#080808] border-[#1a1a1a]",
+            ? "top-3 sm:top-4 left-1/2 w-[calc(100%-16px)] sm:w-[calc(100%-32px)] max-w-[860px] -translate-x-1/2 rounded-full border border-white/[0.08] bg-[#0e0e0e]/80 backdrop-blur-xl shadow-[0_8px_40px_rgba(0,0,0,0.55),0_1px_0_rgba(255,255,255,0.06)_inset]"
+            : "top-0 inset-x-0 rounded-none border-b bg-[#080808] border-[#1a1a1a] shadow-none",
         ].join(" ")}
-        style={{ height: NAVBAR_H }}
+        style={{ height: scrolled ? 56 : NAVBAR_H } as React.CSSProperties & { height: number }}
       >
-        <nav className="mx-auto flex h-full max-w-[1440px] items-center justify-between px-6 sm:px-10 lg:px-[5.5vw]">
+        <nav
+          className={[
+            "mx-auto flex h-full items-center justify-between",
+            scrolled ? "max-w-none px-5 sm:px-7 gap-4" : "max-w-[1440px] px-6 sm:px-10 lg:px-[5.5vw]",
+          ].join(" ")}
+        >
 
-          {/* Logo */}
+          {/* Logo — slightly compact in capsule */}
           <Link
             href="/"
-            className="flex flex-shrink-0 flex-col items-center leading-none text-[#f0ede8]"
+            className={[
+              "flex flex-shrink-0 flex-col items-center leading-none text-[#f0ede8] transition-all duration-500",
+              scrolled ? "scale-[0.88]" : "scale-100",
+            ].join(" ")}
             aria-label="STLLR Media home"
           >
             <span className="font-[var(--font-bebas-neue)] text-[1.7rem] tracking-[0.18em]">STLLR<sup className="ml-0.5 align-super font-[var(--font-dm-sans)] text-[0.34em]">®</sup></span>
             <span className="mt-1 font-[var(--font-dm-sans)] text-[7px] font-medium tracking-[0.52em]">MEDIA</span>
           </Link>
 
-          {/* Desktop nav */}
-          <ul className="hidden md:flex items-center gap-8 lg:gap-12 xl:gap-[4.2rem]">
+          {/* Desktop nav — tighter in capsule */}
+          <ul
+            className={[
+              "hidden md:flex items-center transition-all duration-500",
+              scrolled ? "gap-6 lg:gap-7 xl:gap-8" : "gap-8 lg:gap-12 xl:gap-[4.2rem]",
+            ].join(" ")}
+          >
             {NAV_LINKS.map((link) => (
               <li key={link.label}>
                 <Link
@@ -80,7 +98,12 @@ export default function Navbar() {
           <div className="flex items-center gap-3">
             <Link
               href="#contact"
-              className="hidden md:inline-flex items-center gap-2 border border-[#f0ede8]/30 px-[18px] py-[9px] text-[10.5px] font-medium tracking-[0.2em] uppercase text-[#f0ede8] transition-all duration-300 hover:bg-[#f0ede8] hover:text-[#080808] hover:border-[#f0ede8]"
+              className={[
+                "hidden md:inline-flex items-center gap-2 border text-[10.5px] font-medium tracking-[0.2em] uppercase transition-all duration-300",
+                scrolled
+                  ? "rounded-full border-[#f0ede8]/20 bg-[#f0ede8] px-[16px] py-[7px] text-[#080808] hover:bg-white hover:border-white"
+                  : "border-[#f0ede8]/30 px-[18px] py-[9px] text-[#f0ede8] hover:bg-[#f0ede8] hover:text-[#080808] hover:border-[#f0ede8]",
+              ].join(" ")}
             >
               Enquire
               <svg viewBox="0 0 11 11" width={10} height={10} fill="none" stroke="currentColor" strokeWidth={1.5} aria-hidden="true">
@@ -101,7 +124,7 @@ export default function Navbar() {
             </button>
           </div>
         </nav>
-      </header>
+      </motion.header>
 
       {/* ── Mobile menu overlay ─────────────────────────────────── */}
       <AnimatePresence>

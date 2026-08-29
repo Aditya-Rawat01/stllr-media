@@ -29,9 +29,9 @@ export default function RootLayout({ children }: LayoutProps) {
   return (
     <html
       lang="en"
-      className={`${bebasNeue.variable} ${dmSans.variable} h-full antialiased`}
+      className={`${bebasNeue.variable} ${dmSans.variable} min-h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col bg-[#080808] text-[#f0ede8]">
+      <body className="min-h-screen flex flex-col bg-[#080808] text-[#f0ede8]">
         {children}
       </body>
     </html>

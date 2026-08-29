@@ -155,15 +155,21 @@ export default function Hero() {
 
   return (
     <section
-      className="relative isolate bg-[#080808]"
-      style={{ height: "100svh", overflowX: "hidden" }}
+      className="relative isolate overflow-hidden bg-[#080808]"
+      style={{ minHeight: "100svh" }}
       aria-label="Hero"
     >
-      {/* ── Main grid ─────────────────────────────────────────── */}
+      {/* ── Main grid ───────────────────────────────────────────
+           minHeight (not height) + no inner scroll container.
+           Previously height:100svh + overflowX:hidden created a
+           second vertical scrollbar (overflowX:hidden → overflowY:auto
+           on a fixed-height element, plus stacked mobile content
+           exceeded calc(100svh-86px) and scrolled inside Hero).
+      ─────────────────────────────────────────────────────────── */}
       <div
         className="mx-auto grid max-w-[1440px] grid-cols-1 items-center gap-8 px-6 sm:px-10 lg:grid-cols-[0.42fr_0.58fr] lg:gap-0 lg:px-[6vw]"
         style={{
-          height:     innerH,
+          minHeight:  innerH,
           marginTop:  NAVBAR_H,
           paddingBottom: 52,   /* bottom bar clearance */
         }}
