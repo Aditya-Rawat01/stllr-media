@@ -3,15 +3,20 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
+import { SignInButton, SignUpButton, UserButton, Show, useUser } from "@clerk/nextjs";
 
 const NAV_LINKS = [
-  { label: "Work",     href: "#work" },
   { label: "About",    href: "#about" },
+  { label: "Work",     href: "#work" },
   { label: "Services", href: "#services" },
   { label: "Events",   href: "#events" },
   { label: "Booking",  href: "#booking" },
-  { label: "Contact",  href: "#contact" },
 ];
+
+const scrollToId = (href: string) => {
+  const id = href.replace(/^#/, "");
+  document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" });
+};
 
 /*
   NAVBAR_H — exported so Hero can use the exact same value for its
@@ -22,6 +27,8 @@ export const NAVBAR_H = 86; /* px */
 export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
+  const { user } = useUser();
+  const [isAdmin, setIsAdmin] = useState(false);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 8);
@@ -33,6 +40,14 @@ export default function Navbar() {
     document.body.style.overflow = menuOpen ? "hidden" : "";
     return () => { document.body.style.overflow = ""; };
   }, [menuOpen]);
+
+  useEffect(() => {
+    if (!user) return;
+    fetch("/api/me")
+      .then((res) => res.ok ? res.json() : null)
+      .then((me) => setIsAdmin(me?.role === "admin"))
+      .catch(() => setIsAdmin(false));
+  }, [user]);
 
   return (
     <>
@@ -49,7 +64,7 @@ export default function Navbar() {
         className={[
           "fixed z-50 transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)]",
           scrolled
-            ? "top-3 sm:top-4 left-1/2 w-[calc(100%-16px)] sm:w-[calc(100%-32px)] max-w-[860px] -translate-x-1/2 rounded-full border border-white/[0.08] bg-[#0e0e0e]/80 backdrop-blur-xl shadow-[0_8px_40px_rgba(0,0,0,0.55),0_1px_0_rgba(255,255,255,0.06)_inset]"
+            ? "top-3 sm:top-4 left-1/2 w-[calc(100%-16px)] sm:w-[calc(100%-32px)] max-w-[980px] -translate-x-1/2 rounded-full border border-white/[0.08] bg-[#0e0e0e]/80 backdrop-blur-xl shadow-[0_8px_40px_rgba(0,0,0,0.55),0_1px_0_rgba(255,255,255,0.06)_inset]"
             : "top-0 inset-x-0 rounded-none border-b bg-[#080808] border-[#1a1a1a] shadow-none",
         ].join(" ")}
         style={{ height: scrolled ? 56 : NAVBAR_H } as React.CSSProperties & { height: number }}
@@ -74,34 +89,45 @@ export default function Navbar() {
             <span className="mt-1 font-[var(--font-dm-sans)] text-[7px] font-medium tracking-[0.52em]">MEDIA</span>
           </Link>
 
-          {/* Desktop nav — tighter in capsule */}
+          {/* Desktop nav — tighter in capsule (compact when signed-out needs space) */}
           <ul
             className={[
               "hidden md:flex items-center transition-all duration-500",
-              scrolled ? "gap-6 lg:gap-7 xl:gap-8" : "gap-8 lg:gap-12 xl:gap-[4.2rem]",
+              scrolled ? "gap-4 lg:gap-5 xl:gap-6" : "gap-8 lg:gap-12 xl:gap-[4.2rem]",
             ].join(" ")}
           >
             {NAV_LINKS.map((link) => (
               <li key={link.label}>
-                <Link
-                  href={link.href}
+                <button
+                  onClick={() => scrollToId(link.href)}
                   className="group relative text-[10.5px] font-medium tracking-[0.2em] uppercase text-[#f0ede8]/55 transition-colors duration-200 hover:text-[#f0ede8]"
                 >
                   {link.label}
                   <span className="absolute -bottom-0.5 left-0 h-px w-0 bg-[#e63030] transition-all duration-300 group-hover:w-full" />
-                </Link>
+                </button>
               </li>
             ))}
+            {isAdmin && (
+              <li>
+                <Link
+                  href="/admin/dashboard"
+                  className="group relative text-[10.5px] font-medium tracking-[0.2em] uppercase text-[#f0ede8]/55 transition-colors duration-200 hover:text-[#f0ede8]"
+                >
+                  Dashboard
+                  <span className="absolute -bottom-0.5 left-0 h-px w-0 bg-[#e63030] transition-all duration-300 group-hover:w-full" />
+                </Link>
+              </li>
+            )}
           </ul>
 
-          {/* Enquire + hamburger */}
-          <div className="flex items-center gap-3">
-            <Link
-              href="#contact"
+          {/* Enquire + auth + hamburger */}
+          <div className="flex items-center gap-2 sm:gap-3 flex-shrink-0">
+            <button
+              onClick={() => scrollToId("#contact")}
               className={[
-                "hidden md:inline-flex items-center gap-2 border text-[10.5px] font-medium tracking-[0.2em] uppercase transition-all duration-300",
+                "hidden md:inline-flex items-center gap-2 border text-[10.5px] font-medium tracking-[0.2em] uppercase transition-all duration-300 whitespace-nowrap flex-shrink-0",
                 scrolled
-                  ? "rounded-full border-[#f0ede8]/20 bg-[#f0ede8] px-[16px] py-[7px] text-[#080808] hover:bg-white hover:border-white"
+                  ? "rounded-full border-[#f0ede8]/20 bg-[#f0ede8] px-3 sm:px-[14px] py-[6px] sm:py-[7px] text-[#080808] hover:bg-white hover:border-white"
                   : "border-[#f0ede8]/30 px-[18px] py-[9px] text-[#f0ede8] hover:bg-[#f0ede8] hover:text-[#080808] hover:border-[#f0ede8]",
               ].join(" ")}
             >
@@ -109,7 +135,18 @@ export default function Navbar() {
               <svg viewBox="0 0 11 11" width={10} height={10} fill="none" stroke="currentColor" strokeWidth={1.5} aria-hidden="true">
                 <path d="M1 10 L10 1 M10 1 H4 M10 1 V7" />
               </svg>
-            </Link>
+            </button>
+
+            {/* Clerk auth — desktop (shrink-0 to keep fully visible in pill) */}
+            <div className="hidden md:flex items-center gap-1.5 sm:gap-2 flex-shrink-0">
+              <Show when="signed-out">
+                <SignInButton mode="modal"><button className="whitespace-nowrap rounded-full border border-white/20 px-2.5 sm:px-3 py-1.5 text-[10px] sm:text-[10.5px] tracking-[0.18em] uppercase text-[#f0ede8]/80 hover:bg-white hover:text-black">Sign In</button></SignInButton>
+                <SignUpButton mode="modal"><button className="whitespace-nowrap rounded-full bg-[#f0ede8] px-2.5 sm:px-3 py-1.5 text-[10px] sm:text-[10.5px] tracking-[0.18em] uppercase text-black hover:bg-white">Sign Up</button></SignUpButton>
+              </Show>
+              <Show when="signed-in">
+                <UserButton />
+              </Show>
+            </div>
 
             {/* Hamburger — mobile only */}
             <button
@@ -148,35 +185,63 @@ export default function Navbar() {
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ delay: 0.04 + i * 0.05, duration: 0.32, ease: [0.16, 1, 0.3, 1] }}
                   >
-                    <Link
-                      href={link.href}
-                      onClick={() => setMenuOpen(false)}
-                      className="flex items-center justify-between border-b border-[#1f1f1f] py-[18px] font-[var(--font-bebas-neue)] text-[2rem] tracking-wide text-[#f0ede8]/70 transition-colors hover:text-[#f0ede8]"
+                    <button
+                      onClick={() => { setMenuOpen(false); scrollToId(link.href); }}
+                      className="flex w-full items-center justify-between border-b border-[#1f1f1f] py-[18px] font-[var(--font-bebas-neue)] text-[2rem] tracking-wide text-[#f0ede8]/70 transition-colors hover:text-[#f0ede8]"
                     >
                       {link.label}
                       <svg viewBox="0 0 11 11" width={13} height={13} fill="none" stroke="currentColor" strokeWidth={1.2} className="opacity-25" aria-hidden="true">
                         <path d="M1 10 L10 1 M10 1 H4 M10 1 V7" />
                       </svg>
-                    </Link>
+                    </button>
                   </motion.li>
                 ))}
+                {isAdmin && (
+                  <motion.li
+                    key="Dashboard"
+                    initial={{ opacity: 0, x: -14 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 0.04 + NAV_LINKS.length * 0.05, duration: 0.32, ease: [0.16, 1, 0.3, 1] }}
+                  >
+                    <Link
+                      href="/admin/dashboard"
+                      onClick={() => setMenuOpen(false)}
+                      className="flex w-full items-center justify-between border-b border-[#1f1f1f] py-[18px] font-[var(--font-bebas-neue)] text-[2rem] tracking-wide text-[#f0ede8]/70 transition-colors hover:text-[#f0ede8]"
+                    >
+                      Dashboard
+                      <svg viewBox="0 0 11 11" width={13} height={13} fill="none" stroke="currentColor" strokeWidth={1.2} className="opacity-25" aria-hidden="true">
+                        <path d="M1 10 L10 1 M10 1 H4 M10 1 V7" />
+                      </svg>
+                    </Link>
+                  </motion.li>
+                )}
               </ul>
 
               <motion.div
                 initial={{ opacity: 0, y: 8 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.36, duration: 0.32, ease: [0.16, 1, 0.3, 1] }}
+                className="flex flex-col gap-3"
               >
-                <Link
-                  href="#contact"
-                  onClick={() => setMenuOpen(false)}
+                <button
+                  onClick={() => { setMenuOpen(false); scrollToId("#contact"); }}
                   className="flex w-full items-center justify-center gap-2 border border-[#f0ede8]/25 py-4 text-[11px] font-medium tracking-[0.2em] uppercase text-[#f0ede8] transition-all hover:bg-[#f0ede8] hover:text-[#080808]"
                 >
                   Enquire
                   <svg viewBox="0 0 11 11" width={10} height={10} fill="none" stroke="currentColor" strokeWidth={1.5} aria-hidden="true">
                     <path d="M1 10 L10 1 M10 1 H4 M10 1 V7" />
                   </svg>
-                </Link>
+                </button>
+                {/* Clerk auth — mobile */}
+                <div className="flex justify-center gap-3 pt-2">
+                  <Show when="signed-out">
+                    <SignInButton mode="modal"><button onClick={() => setMenuOpen(false)} className="rounded-full border border-white/20 px-4 py-2 text-xs uppercase tracking-[0.18em] text-white">Sign In</button></SignInButton>
+                    <SignUpButton mode="modal"><button onClick={() => setMenuOpen(false)} className="rounded-full bg-white px-4 py-2 text-xs uppercase tracking-[0.18em] text-black">Sign Up</button></SignUpButton>
+                  </Show>
+                  <Show when="signed-in">
+                    <div className="flex justify-center"><UserButton /></div>
+                  </Show>
+                </div>
               </motion.div>
             </div>
           </motion.div>

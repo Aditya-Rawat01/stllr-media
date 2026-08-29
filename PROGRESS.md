@@ -9,14 +9,18 @@
 - 2026-08-29 15:30: `lib/ai/tools.ts:9` 5 READ tools + `lib/ai/provider.ts:1` groq `openai/gpt-oss-20b` (llama deprecated) + `app/api/chat/route.ts:20` SSE `streamText` + `stepCountIs(5)` + `GET /api/health/db`
 - 2026-08-29 15:35: Verified: `npx tsc --noEmit` clean, `next build` ok, 5 chats: wedding services, portfolio, cancellation, upcoming events, team availability — SSE `text-delta` after `tool-output-available` confirmed
 - Fixed: Date serialization bug (tool outputs `createdAt/startDate` Date→ISO) caused `AI_InvalidPromptError` on SSE second step, fixed in `lib/ai/tools.ts:27,37,54`
+- 2026-08-29 16:15: Brand rework — `lib/ai/prompt.ts:1` weavers-of-light + `lib/db/seed.ts:1` 6 active brand services (Ad Film, Brand Campaign…) + `stllr@ardev.in` verified, `POST /api/contact` ok
+- 2026-08-29 16:20: Support UI — `components/SupportChat.tsx:1` floating `STLLR Support` modal + `useChat` SSE clean (hides reasoning), `app/page.tsx:68` wired, `npx tsc` clean
+- 2026-08-29 16:30: CI — `app/api/healthy:200 pong` + `playwright.config.ts:1` + `tests/landing.spec.ts:3` `/stllr/i` + `.github/workflows/ci.yml:1` `build → curl -f → playwright` + `.github/workflows/auto-merge.yml:1` auto-PR, `allow auto-merge` + `branches-ignore:main`, fixed `reuseExistingServer:true` + `DB_URI` dummy for build
+- 2026-08-29 17:15: **Resend + Leads DONE** — `lib/db/schema.ts:63` `leads(enquiry_type enum)` → `drizzle/0001_careful_nehzno.sql:1` pushed, `app/api/contact/route.ts:1` `POST {email,phone,enquiryDetails,enquiryType} → db.insert + Resend {data,error} check` `emailStatus:sent`, `RESEND_FROM=Stllr Media <stllr@ardev.in>` verified (onboarding only to own email), tested `adityarawat240@gmail.com` + `adityarawatmain@gmail.com` both delivered `3d31b616…`/`6b225763…` mock brand mails
 
 ### Doing
-- [x] All v0 — ready for Clerk gating
+- [x] All v0 + Resend — ready for Clerk gating
 
 ### Next
 - Booking availability (deferred appendix PRD.md) — 30m 09-21, 1h-28d window
 - Clerk auth gate on `/api/chat` (verify `auth()` before `getModel`)
-- Leads/contact form + Resend + summarization
+- Chat summarization → leads, Reports
 
 ### Decisions
 - DB_URI pooler Singapore — `.env` fixed `DB_URI =` → `DB_URI=` for Next env parsing
