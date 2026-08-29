@@ -60,7 +60,7 @@ export default function About() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: "-80px" }}
             transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-            className="flex items-center justify-between gap-6 border-b border-[#1a1a1a] pb-6 sm:pb-7"
+            className="flex items-center justify-between gap-6 pb-6 sm:pb-7"
           >
             <div className="flex items-center gap-4 sm:gap-5">
               <span className="font-[var(--font-dm-sans)] text-[10px] font-medium tracking-[0.28em] text-[#f0ede8]/30">

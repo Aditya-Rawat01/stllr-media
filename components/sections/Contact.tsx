@@ -148,7 +148,7 @@ export default function Contact() {
     <section id="contact" aria-label="Contact" className="relative overflow-hidden bg-[#080808]">
       <div className="mx-auto max-w-[1440px] px-6 sm:px-10 lg:px-[6vw]">
         {/* eyebrow — consistent */}
-        <div className="flex items-center gap-4 border-b border-[#1a1a1a] pb-6 pt-12 sm:gap-5 sm:pb-7 sm:pt-14 lg:pt-16">
+        <div className="flex items-center gap-4 pb-6 pt-12 sm:gap-5 sm:pb-7 sm:pt-14 lg:pt-16">
           <span className="font-[var(--font-dm-sans)] text-[10px] font-medium tracking-[0.28em] text-[#f0ede8]/30">04</span>
           <span className="hidden h-px w-10 bg-[#f0ede8]/15 sm:block" aria-hidden="true" />
           <span className="font-[var(--font-dm-sans)] text-[10px] font-medium tracking-[0.24em] text-[#f0ede8]/60 uppercase">Contact</span>
@@ -387,9 +387,8 @@ export default function Contact() {
           </div>
         </div>
 
-        {/* close hairline */}
-        <div className="mt-10 h-px w-full bg-[#1a1a1a] sm:mt-12" aria-hidden="true" />
-        <div className="h-8 sm:h-10" aria-hidden="true" />
+        {/* consistent bottom spacing — no trailing hairline */}
+        <div className="h-12 sm:h-14 lg:h-16" aria-hidden="true" />
       </div>
     </section>
   );

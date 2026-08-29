@@ -54,7 +54,7 @@ export default function GalleryClient() {
     <section className="relative bg-[#080808] pt-[86px]">
       {/* header — big GALLERY left, big visual div right, Back to Home below heading */}
       <div className="mx-auto max-w-[1440px] px-6 sm:px-10 lg:px-[6vw]">
-        <div className="border-b border-[#1a1a1a] pb-8 pt-10 sm:pb-10 sm:pt-12 lg:pb-12 lg:pt-16">
+        <div className="pb-8 pt-10 sm:pb-10 sm:pt-12 lg:pb-12 lg:pt-16">
           <h1
             className="font-[var(--font-bebas-neue)] leading-[0.86] tracking-[-0.02em] text-[#f0ede8]"
             style={{ fontSize: "clamp(3.4rem, 8vw, 7.6rem)" }}
