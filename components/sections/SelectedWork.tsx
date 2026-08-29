@@ -77,7 +77,7 @@ export default function SelectedWork() {
               <span className="tabular-nums">04</span>
             </span>
             <Link
-              href="#work"
+              href="/gallery"
               className="group inline-flex items-center gap-2 font-[var(--font-dm-sans)] text-[10px] font-medium tracking-[0.2em] uppercase text-[#f0ede8]/70 transition-colors hover:text-[#f0ede8]"
             >
               View All Work
