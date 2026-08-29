@@ -85,9 +85,6 @@ export default function Services() {
       id="services"
       aria-label="Services"
       className="relative overflow-hidden bg-[#080808]"
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
-      onMouseMove={handleMouseMove}
     >
       <div className="mx-auto max-w-[1440px] px-6 sm:px-10 lg:px-[6vw]">
         {/* eyebrow */}
@@ -115,8 +112,13 @@ export default function Services() {
           </p>
         </div>
 
-        {/* FULL-WIDTH editorial list */}
-        <div className="mt-10 border-t border-[#1a1a1a] sm:mt-12 lg:mt-14">
+        {/* FULL-WIDTH editorial list — hover only over this list shows preview */}
+        <div
+          className="mt-10 border-t border-[#1a1a1a] sm:mt-12 lg:mt-14"
+          onMouseEnter={() => setHovered(true)}
+          onMouseLeave={() => setHovered(false)}
+          onMouseMove={handleMouseMove}
+        >
           {SERVICES.map((service) => {
             const isActive = service.slug === active;
             return (
