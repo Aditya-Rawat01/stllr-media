@@ -7,7 +7,7 @@ export default defineConfig({
   webServer: {
     command: "npm run start",
     url: "http://localhost:3000/api/healthy",
-    reuseExistingServer: !process.env.CI,
+    reuseExistingServer: true,
     timeout: 60 * 1000,
   },
   projects: [{ name: "chromium", use: { ...devices["Desktop Chrome"] } }],
