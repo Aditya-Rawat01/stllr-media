@@ -1,4 +1,4 @@
-import { pgTable, uuid, text, integer, boolean, timestamp, pgEnum, index } from "drizzle-orm/pg-core";
+import { pgTable, uuid, text, integer, boolean, timestamp, pgEnum, index, varchar } from "drizzle-orm/pg-core";
 
 export const serviceCategoryEnum = pgEnum("service_category", ["photography", "videography", "editing", "combo", "drone"]);
 export const eventStatusEnum = pgEnum("event_status", ["upcoming", "ongoing", "completed", "cancelled"]);
@@ -60,3 +60,14 @@ export const faqs = pgTable("faqs", {
   isPublished: boolean("is_published").default(true).notNull(),
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
 });
+
+export const enquiryTypeEnum = pgEnum("enquiry_type", ["general", "videography", "photography", "video_editing", "drone", "combo", "brand_campaign", "corporate"]);
+
+export const leads = pgTable("leads", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  email: text("email").notNull(),
+  phone: varchar("phone", { length: 20 }).notNull(),
+  enquiryDetails: text("enquiry_details").notNull(),
+  enquiryType: enquiryTypeEnum("enquiry_type").default("general").notNull(),
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+}, (t) => [index("leads_email_idx").on(t.email), index("leads_created_idx").on(t.createdAt)]);
