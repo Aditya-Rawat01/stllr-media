@@ -33,6 +33,13 @@ jobs:
           fi
 
           if [ -n "$PR_NUM" ] && [ "$PR_NUM" != "null" ]; then
-            echo "Enabling auto-merge (squash) for PR #$PR_NUM"
-            gh pr merge --auto --squash "$PR_NUM" || echo "auto-merge enable failed (check branch protection allows auto-merge)"
+            echo "Enabling auto-merge (squash) for PR #$PR_NUM (retry for unstable status)"
+            for i in 1 2 3 4 5; do
+              if gh pr merge --auto --squash "$PR_NUM"; then
+                echo "auto-merge enabled"
+                break
+              fi
+              echo "attempt $i failed, waiting 6s... (check Settings → General → ☑ Allow auto-merge and Branches → main requires ci)"
+              sleep 6
+            done
           fi
