@@ -94,8 +94,10 @@ export const staff = pgTable(
     "staff",
     {
         id: uuid("id").primaryKey().defaultRandom(),
+        employeeNumber: text("employee_number").unique(),
         name: text("name").notNull(),
         role: staffRoleEnum("role").notNull(),
+        workDescription: text("work_description"),
         isActive: boolean("is_active").default(true).notNull(),
         createdAt: timestamp("created_at", { withTimezone: true })
             .defaultNow()
@@ -144,6 +146,7 @@ export const leads = pgTable(
             .default("general")
             .notNull(),
         status: leadStatusEnum("status").default("not_contacted").notNull(),
+        assignedStaffId: uuid("assigned_staff_id").references(() => staff.id),
         createdAt: timestamp("created_at", { withTimezone: true })
             .defaultNow()
             .notNull(),
@@ -179,6 +182,7 @@ export const bookings = pgTable(
         location: text("location").notNull(),
         city: text("city").notNull(),
         notes: text("notes"),
+        assignedStaffId: uuid("assigned_staff_id").references(() => staff.id),
         createdAt: timestamp("created_at", { withTimezone: true })
             .defaultNow()
             .notNull(),
@@ -187,6 +191,7 @@ export const bookings = pgTable(
         index("bookings_date_idx").on(t.bookingDate),
         index("bookings_status_idx").on(t.status),
         index("bookings_city_idx").on(t.city),
+        index("bookings_assigned_staff_idx").on(t.assignedStaffId),
     ],
 );
 

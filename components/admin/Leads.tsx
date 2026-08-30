@@ -9,6 +9,8 @@ export type Lead = {
   enquiryType: string;
   enquiryDetails: string;
   status: "not_contacted" | "in_progress" | "converted";
+  assignedStaffId?: string | null;
+  assignedStaffName?: string | null;
   createdAt: string;
 };
 

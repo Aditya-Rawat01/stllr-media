@@ -16,17 +16,36 @@ const NAV_LINKS = [
     { label: "About", href: "#about" },
     { label: "Work", href: "#work" },
     { label: "Services", href: "#services" },
-    { label: "Events", href: "/events" },
+    { label: "Events", href: "#events" },
     { label: "Booking", href: "#booking" },
 ];
 
-const scrollToId = (href: string) => {
+const scrollToId = (href: string, router: ReturnType<typeof useRouter>) => {
     if (href.startsWith("/")) return false;
+    if (window.location.pathname !== "/") {
+        router.push(`/${href}`);
+        return true;
+    }
     const id = href.replace(/^#/, "");
     document
         .getElementById(id)
         ?.scrollIntoView({ behavior: "smooth", block: "start" });
     return true;
+};
+
+const jumpToContact = (router: ReturnType<typeof useRouter>) => {
+    if (typeof window === "undefined") return;
+    if (window.location.pathname !== "/") {
+        router.push("/#contact");
+        return;
+    }
+
+    const contact = document.getElementById("contact");
+    if (contact) {
+        contact.scrollIntoView({ behavior: "smooth", block: "start" });
+    } else {
+        router.push("/#contact");
+    }
 };
 
 /*
@@ -136,7 +155,9 @@ export default function Navbar() {
                                     </Link>
                                 ) : (
                                     <button
-                                        onClick={() => scrollToId(link.href)}
+                                        onClick={() =>
+                                            scrollToId(link.href, router)
+                                        }
                                         className="group relative text-[10.5px] font-medium tracking-[0.2em] uppercase text-[#f0ede8]/55 transition-colors duration-200 hover:text-[#f0ede8]"
                                     >
                                         {link.label}
@@ -161,7 +182,7 @@ export default function Navbar() {
                     {/* Enquire + auth + hamburger */}
                     <div className="flex items-center gap-2 sm:gap-3 flex-shrink-0">
                         <button
-                            onClick={() => scrollToId("#contact")}
+                            onClick={() => jumpToContact(router)}
                             className={[
                                 "hidden md:inline-flex items-center gap-2 border text-[10.5px] font-medium tracking-[0.2em] uppercase transition-all duration-300 whitespace-nowrap flex-shrink-0",
                                 scrolled
@@ -291,7 +312,7 @@ export default function Navbar() {
                                             <button
                                                 onClick={() => {
                                                     setMenuOpen(false);
-                                                    scrollToId(link.href);
+                                                    scrollToId(link.href, router);
                                                 }}
                                                 className="flex w-full items-center justify-between border-b border-[#1f1f1f] py-[18px] font-[var(--font-bebas-neue)] text-[2rem] tracking-wide text-[#f0ede8]/70 transition-colors hover:text-[#f0ede8]"
                                             >
@@ -360,7 +381,7 @@ export default function Navbar() {
                                 <button
                                     onClick={() => {
                                         setMenuOpen(false);
-                                        scrollToId("#contact");
+                                        jumpToContact(router);
                                     }}
                                     className="flex w-full items-center justify-center gap-2 border border-[#f0ede8]/25 py-4 text-[11px] font-medium tracking-[0.2em] uppercase text-[#f0ede8] transition-all hover:bg-[#f0ede8] hover:text-[#080808]"
                                 >
