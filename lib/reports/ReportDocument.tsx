@@ -45,7 +45,7 @@ type Payload = {
 };
 
 const fmtINR = (paise: number) =>
-  new Intl.NumberFormat("en-IN", { style: "currency", currency: "INR", maximumFractionDigits: 0 }).format(paise / 100);
+  `Rs. ${new Intl.NumberFormat("en-IN", { maximumFractionDigits: 0 }).format(paise / 100)}`;
 const fmtNum = (n: number) => new Intl.NumberFormat("en-IN").format(n);
 const fmtDateIST = (iso: string) => {
   try {
@@ -201,14 +201,14 @@ export default function ReportDocument({ data }: { data: Payload }) {
             ["Realized — completed", fmtINR(s.realizedPaise), "status = completed"],
             ["Pipeline — confirmed + in progress", fmtINR(s.pipelinePaise), "status = confirmed, in_progress"],
             ["Expected — pending", fmtINR(s.expectedPaise), "status = pending"],
-            ["Cancelled bookings", fmtNum(s.cancelledCount), "₹0 — not counted in totals"],
+            ["Cancelled bookings", fmtNum(s.cancelledCount), "Rs. 0 — not counted in totals"],
             ["Total estimated revenue", fmtINR(s.totalEstimatedPaise), "realized + pipeline + expected"],
             ["Total leads (in period)", fmtNum(s.totalLeads), `created ${data.period.from} → ${data.period.to}`],
           ]} />
           <Text style={[styles.feeNote, { marginTop: 2 }]}>All revenue is estimated from services.basePrice (paise/100). No paid/final amounts stored yet.</Text>
         </Section>
 
-        <Section title="Bookings — by status" subtitle="Cancelled shows — (₹0) and is excluded from revenue totals.">
+        <Section title="Bookings — by status" subtitle="Cancelled shows — (Rs. 0) and is excluded from revenue totals.">
           <SimpleTable head={["Status", "Count", "Est. revenue (INR)"]} headStyle={styles.headRowRed} colFlex={[2.2, 0.8, 1.6]} rows={data.byStatus.map(r => [human(r.status), fmtNum(r.count), r.status === "cancelled" ? "—" : fmtINR(r.revenuePaise)])} />
         </Section>
 
