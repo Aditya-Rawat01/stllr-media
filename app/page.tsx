@@ -6,6 +6,7 @@ import SelectedWork from "@/components/sections/SelectedWork";
 import Services from "@/components/sections/Services";
 import UpcomingEvents from "@/components/sections/UpcomingEvents";
 import Contact from "@/components/sections/Contact";
+import Footer from "@/components/layout/Footer";
 import SupportChat from "@/components/SupportChat";
 import NotAdminToast from "@/components/NotAdminToast";
 
@@ -22,6 +23,7 @@ export default function Home() {
       <Services />
       <UpcomingEvents />
       <Contact />
+      <Footer />
       <SupportChat />
     </main>
   );
