@@ -20,6 +20,14 @@ export const metadata: Metadata = {
   title: "STLLR Media — Photography & Videography",
   description:
     "STLLR Media is a creative studio specialising in photography, videography and creative production.",
+  icons: {
+    icon: [
+      { url: "/icon.jpg", type: "image/jpeg" },
+      { url: "/references/stllr_media_logo.jpg", type: "image/jpeg" },
+    ],
+    apple: "/references/stllr_media_logo.jpg",
+    shortcut: "/references/stllr_media_logo.jpg",
+  },
 };
 
 interface LayoutProps {
