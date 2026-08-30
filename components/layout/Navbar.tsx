@@ -17,7 +17,7 @@ const NAV_LINKS = [
     { label: "Work", href: "#work" },
     { label: "Services", href: "#services" },
     { label: "Events", href: "#events" },
-    { label: "Booking", href: "#booking" },
+    { label: "Booking", href: "/booking" },
 ];
 
 const scrollToId = (href: string, router: ReturnType<typeof useRouter>) => {

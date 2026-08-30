@@ -12,7 +12,8 @@ export default function EventsPage() {
     const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
-        const fetchBookings = async () => {
+        let cancelled = false;
+        const fetchBookings = async (attempt = 1) => {
             try {
                 const res = await fetch("/api/bookings?includePast=true&limit=100", {
                     cache: "no-store",
@@ -20,19 +21,20 @@ export default function EventsPage() {
                 });
                 if (!res.ok) throw new Error(`API error: ${res.status}`);
                 const data = await res.json();
-                setBookings(data.bookings || []);
+                if (!cancelled) setBookings(data.bookings || []);
             } catch (err) {
-                setError(
-                    err instanceof Error
-                        ? err.message
-                        : "Failed to load bookings",
-                );
+                // ponytail: Neon cold start / Clerk warmup → auto-retry once (explains refresh fixes it)
+                if (attempt < 2) {
+                    await new Promise(r => setTimeout(r, 700));
+                    return fetchBookings(attempt + 1);
+                }
+                if (!cancelled) setError(err instanceof Error ? err.message : "Failed to load bookings");
             } finally {
-                setLoading(false);
+                if (!cancelled) setLoading(false);
             }
         };
-
         fetchBookings();
+        return () => { cancelled = true; };
     }, []);
 
     return (

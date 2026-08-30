@@ -1,10 +1,41 @@
 import { tool } from "ai";
 import { z } from "zod";
 import { db } from "@/lib/db";
-import { services, galleryItems, events, staff, faqs } from "@/lib/db/schema";
+import { services, galleryItems, bookings, staff, faqs } from "@/lib/db/schema";
 import { eq, ilike, or, sql, desc, asc, and } from "drizzle-orm";
+import { formatIST } from "@/lib/timezone";
 
-// ponytail: 5 read-only tools, no writes, skip bookings per PRD v0
+// ponytail: 6 read-only tools, bookings via /api/bookings (asc) — minimal add, IST normalized
+async function fetchBookingsViaApi(limit: number, city?: string) {
+  const base = process.env.NEXT_PUBLIC_SITE_URL || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "http://localhost:3000");
+  try {
+    const url = new URL("/api/bookings", base);
+    url.searchParams.set("limit", String(limit));
+    if (city) url.searchParams.set("city", city);
+    const res = await fetch(url.toString(), { cache: "no-store" } as any);
+    if (res.ok) {
+      const j: any = await res.json();
+      if (Array.isArray(j.bookings)) {
+        // ponytail: normalize UTC → IST for chat (Calendar already uses formatIST)
+        return j.bookings.map((b: any) => ({
+          ...b,
+          bookingDate: b.bookingDate,
+          bookingDateIST: formatIST(b.bookingDate),
+          createdAtIST: b.createdAt ? formatIST(b.createdAt) : undefined,
+        }));
+      }
+    }
+  } catch {}
+  // fallback — mirrors app/api/bookings/route.ts asc(bookings.bookingDate) — hide staff
+  const now = new Date(); now.setHours(0,0,0,0);
+  const rows = await db.select().from(bookings).orderBy(asc(bookings.bookingDate)).limit(100);
+  let filtered = rows.filter(r => new Date(r.bookingDate) >= now && !["cancelled","completed"].includes(r.status));
+  if (city) filtered = filtered.filter(r => r.city === city);
+  return filtered.slice(0, limit).map(r => {
+    const { assignedStaffId, ...rest } = r as any;
+    return { ...rest, bookingDate: r.bookingDate.toISOString(), bookingDateIST: formatIST(r.bookingDate), createdAt: r.createdAt.toISOString(), createdAtIST: formatIST(r.createdAt) };
+  });
+}
 
 export const chatTools = {
   getServices: tool({
@@ -30,12 +61,15 @@ export const chatTools = {
   }),
 
   getUpcomingEvents: tool({
-    description: "List upcoming events. Use ONLY when user says city name explicitly; otherwise omit city and return all upcoming.",
+    description: "List upcoming bookings/events via /api/bookings (ascending by bookingDate). Use for 'upcoming events', calendar, shoots. Via /api/bookings — always ascending.",
     inputSchema: z.object({ limit: z.number().min(1).max(20).default(5), city: z.string().optional().describe("ONLY if user explicitly mentions city, e.g. 'Delhi'") }),
-    execute: async ({ limit, city }) => {
-      const rows = city ? await db.select().from(events).where(eq(events.city, city)).orderBy(asc(events.startDate)).limit(limit) : await db.select().from(events).where(eq(events.status, "upcoming")).orderBy(asc(events.startDate)).limit(limit);
-      return rows.map(r => ({ ...r, startDate: r.startDate.toISOString(), endDate: r.endDate.toISOString(), createdAt: r.createdAt.toISOString() }));
-    },
+    execute: async ({ limit, city }) => fetchBookingsViaApi(limit, city),
+  }),
+
+  getBookings: tool({
+    description: "List upcoming bookings/shoots via /api/bookings (ascending by bookingDate). Filter by city only if user explicitly mentions city. Alias of getUpcomingEvents — same /api/bookings source.",
+    inputSchema: z.object({ limit: z.number().min(1).max(20).default(5), city: z.string().optional().describe("ONLY if user explicitly mentions city") }),
+    execute: async ({ limit, city }) => fetchBookingsViaApi(limit, city),
   }),
 
   getTeamAvailability: tool({

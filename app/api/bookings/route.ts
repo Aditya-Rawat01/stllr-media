@@ -1,15 +1,15 @@
 import { db } from "@/lib/db";
 import { bookings, services, staff } from "@/lib/db/schema";
-import { gte, asc, eq } from "drizzle-orm";
+import { asc, eq } from "drizzle-orm";
 import { getCurrentUser } from "@/lib/auth";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 export async function GET(req: Request) {
-    // Public-facing upcoming bookings for the site and events calendar.
-    // This endpoint is intentionally readable without auth because it powers the public booking calendar and homepage preview.
-    const user = await getCurrentUser();
+    // Public-facing — must never 500 due to auth (ponytail: one guard in auth + here)
+    let user: any = null;
+    try { user = await getCurrentUser(); } catch { user = null; }
 
     const { searchParams } = new URL(req.url);
     const city = searchParams.get("city");
@@ -101,21 +101,21 @@ export async function GET(req: Request) {
         }
 
         // customers see all upcoming (calendar UI: what we're working on next)
+        // fix: don't leak assignedStaff to non-admin (previous ...r included it for everyone)
+        const isAdmin = user?.role === "admin";
         return Response.json({
             ok: true,
             role: user?.role ?? "customer",
             count: rows.length,
-            bookings: rows.map((r) => ({
-                ...r,
-                ...(user?.role === "admin"
-                    ? {
-                          assignedStaffId: r.assignedStaffId,
-                          assignedStaffName: r.assignedStaffName,
-                      }
-                    : {}),
-                bookingDate: new Date(r.bookingDate).toISOString(),
-                createdAt: new Date(r.createdAt).toISOString(),
-            })),
+            bookings: rows.map((r) => {
+                const { assignedStaffId, assignedStaffName, ...rest } = r as any;
+                return {
+                    ...rest,
+                    ...(isAdmin ? { assignedStaffId, assignedStaffName } : {}),
+                    bookingDate: new Date(r.bookingDate).toISOString(),
+                    createdAt: new Date(r.createdAt).toISOString(),
+                };
+            }),
         });
     } catch (e: any) {
         return Response.json({ ok: false, error: e.message }, { status: 500 });

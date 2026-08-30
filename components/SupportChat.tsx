@@ -99,12 +99,12 @@ export default function SupportChat() {
                         }`}
                       >
                         {m.parts.map((p, i) => {
-                          if (p.type === "text") return <span key={i}>{p.text}</span>;
+                          if (p.type === "text") return <span key={i}>{String((p as any).text ?? "").replaceAll("**", "")}</span>;
                           if (p.type === "reasoning") return null;
                           if (p.type.startsWith("tool-")) return null;
                           return null;
                         })}
-                        {m.parts.length === 0 ? legacyContent(m) : null}
+                        {m.parts.length === 0 ? (legacyContent(m) ? String(legacyContent(m)).replaceAll("**", "") : null) : null}
                       </div>
                     </div>
                   ))}
