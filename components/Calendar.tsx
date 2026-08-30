@@ -13,6 +13,7 @@ export interface Booking {
     status: string;
     serviceName?: string;
     city?: string;
+    assignedStaffName?: string | null;
 }
 
 interface CalendarProps {
@@ -22,7 +23,9 @@ interface CalendarProps {
 export default function Calendar({ bookings }: CalendarProps) {
     const [currentMonth, setCurrentMonth] = useState(new Date());
     const [selectedDate, setSelectedDate] = useState<string | null>(null);
-
+    const todayIST = formatIST(new Date());
+    const isPastBooking = (bookingDate: string) =>
+        formatIST(bookingDate) < todayIST;
     // Group bookings by date
     const bookingsByDate = useMemo(() => {
         const map = new Map<string, Booking[]>();
@@ -122,6 +125,11 @@ export default function Calendar({ bookings }: CalendarProps) {
                 </button>
             </div>
 
+            <div className="mb-4 flex justify-center gap-4 text-[10px] tracking-[0.12em] text-[#888888] uppercase">
+                <span className="inline-flex items-center gap-1.5"><span className="h-2 w-2 rounded-full bg-blue-400" /> Upcoming</span>
+                <span className="inline-flex items-center gap-1.5"><span className="h-2 w-2 rounded-full bg-green-400" /> Past</span>
+            </div>
+
             {/* Desktop Calendar (7 columns with headers) */}
             <div className="hidden md:grid grid-cols-7 gap-1">
                 {/* Day headers */}
@@ -141,6 +149,12 @@ export default function Calendar({ bookings }: CalendarProps) {
                     const dateStr = formatIST(date);
                     const daybookings = bookingsByDate.get(dateStr) || [];
                     const isSelected = selectedDate === dateStr;
+                    const hasPast = daybookings.some((booking) =>
+                        isPastBooking(booking.bookingDate),
+                    );
+                    const hasUpcoming = daybookings.some(
+                        (booking) => !isPastBooking(booking.bookingDate),
+                    );
 
                     // Check if this is today
                     const today = new Date();
@@ -166,7 +180,11 @@ export default function Calendar({ bookings }: CalendarProps) {
                     isToday
                         ? "border-[#e63030] bg-[#e63030]/10 hover:bg-[#e63030]/15"
                         : daybookings && daybookings.length > 0
-                          ? "border-[#e63030]/40 bg-[#1a1a1a] hover:border-[#e63030]/70 hover:bg-[#222222]"
+                                                    ? hasUpcoming
+                                                            ? "border-blue-400/50 bg-blue-950/30 hover:border-blue-400/80 hover:bg-blue-950/50"
+                                                            : hasPast
+                                                                ? "border-green-400/50 bg-green-950/30 hover:border-green-400/80 hover:bg-green-950/50"
+                                                                : "border-[#1f1f1f] bg-[#111111]"
                           : "border-[#1f1f1f] bg-[#111111] hover:bg-[#1a1a1a]"
                 }
                 ${isSelected ? "ring-2 ring-[#e63030] border-[#e63030]" : ""}
@@ -182,7 +200,7 @@ export default function Calendar({ bookings }: CalendarProps) {
                                     {daybookings.slice(0, 3).map((b) => (
                                         <div
                                             key={b.id}
-                                            className="w-2 h-2 rounded-full bg-[#e63030]"
+                                            className={`w-2 h-2 rounded-full ${isPastBooking(b.bookingDate) ? "bg-green-400" : "bg-blue-400"}`}
                                             title={`${b.customerName}`}
                                         />
                                     ))}
@@ -204,6 +222,12 @@ export default function Calendar({ bookings }: CalendarProps) {
                     const dateStr = formatIST(date);
                     const daybookings = bookingsByDate.get(dateStr) || [];
                     const isSelected = selectedDate === dateStr;
+                    const hasPast = daybookings.some((booking) =>
+                        isPastBooking(booking.bookingDate),
+                    );
+                    const hasUpcoming = daybookings.some(
+                        (booking) => !isPastBooking(booking.bookingDate),
+                    );
 
                     // Check if this is today
                     const today = new Date();
@@ -224,7 +248,11 @@ export default function Calendar({ bookings }: CalendarProps) {
                     isToday
                         ? "border-[#e63030] bg-[#e63030]/10 hover:bg-[#e63030]/15"
                         : daybookings && daybookings.length > 0
-                          ? "border-[#e63030]/40 bg-[#1a1a1a] hover:border-[#e63030]/70 hover:bg-[#222222]"
+                                                    ? hasUpcoming
+                                                            ? "border-blue-400/50 bg-blue-950/30 hover:border-blue-400/80 hover:bg-blue-950/50"
+                                                            : hasPast
+                                                                ? "border-green-400/50 bg-green-950/30 hover:border-green-400/80 hover:bg-green-950/50"
+                                                                : "border-[#1f1f1f] bg-[#111111]"
                           : "border-[#1f1f1f] bg-[#111111] hover:bg-[#1a1a1a]"
                 }
                 ${isSelected ? "ring-2 ring-[#e63030] border-[#e63030]" : ""}
@@ -243,7 +271,7 @@ export default function Calendar({ bookings }: CalendarProps) {
                                     {daybookings.slice(0, 2).map((b) => (
                                         <div
                                             key={b.id}
-                                            className="w-1 h-1 sm:w-1.5 sm:h-1.5 rounded-full bg-[#e63030]"
+                                            className={`w-1 h-1 sm:w-1.5 sm:h-1.5 rounded-full ${isPastBooking(b.bookingDate) ? "bg-green-400" : "bg-blue-400"}`}
                                             title={`${b.customerName}`}
                                         />
                                     ))}
@@ -270,7 +298,7 @@ export default function Calendar({ bookings }: CalendarProps) {
                         {bookingsByDate.get(selectedDate)!.map((booking) => (
                             <div
                                 key={booking.id}
-                                className={`p-3 rounded border-l-4 ${statusColor(booking.status)}`}
+                                className={`p-3 rounded border-l-4 ${isPastBooking(booking.bookingDate) ? "bg-green-900/30 text-green-300 border-l-green-500" : "bg-blue-900/30 text-blue-300 border-l-blue-500"}`}
                             >
                                 <div className="flex items-start justify-between gap-2">
                                     <div className="flex-1">
@@ -289,6 +317,11 @@ export default function Calendar({ bookings }: CalendarProps) {
                                         {booking.city && (
                                             <p className="text-xs text-[#888888]">
                                                 {booking.city}
+                                            </p>
+                                        )}
+                                        {booking.assignedStaffName && (
+                                            <p className="mt-1 text-xs text-green-400">
+                                                Assigned to: {booking.assignedStaffName}
                                             </p>
                                         )}
                                     </div>
