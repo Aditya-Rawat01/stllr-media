@@ -126,9 +126,19 @@ function Header({ label }: { label: string }) {
   );
 }
 
-function Section({ title, subtitle, children }: { title: string; subtitle?: string; children: React.ReactNode }) {
+function Section({
+  title,
+  subtitle,
+  children,
+  breakable,
+}: {
+  title: string;
+  subtitle?: string;
+  children: React.ReactNode;
+  breakable?: boolean;
+}) {
   return (
-    <View style={{ marginBottom: 10 }} wrap={false}>
+    <View style={{ marginBottom: 10 }} wrap={breakable ? true : false}>
       <Text style={styles.sectionTitle}>{title}</Text>
       <View style={styles.sectionRule} />
       {subtitle ? <Text style={styles.sectionSub}>{subtitle}</Text> : null}
@@ -230,7 +240,11 @@ export default function ReportDocument({ data }: { data: Payload }) {
           </Section>
         )}
 
-        <Section title={`Bookings — detailed  (${fmtNum(data.bookings.length)} records)`} subtitle={`All bookings where createdAt ∈ ${data.period.from} → ${data.period.to} IST, ordered by createdAt desc. Shoot date = bookingDate.`}>
+        <Section
+          title={`Bookings — detailed  (${fmtNum(data.bookings.length)} records)`}
+          subtitle={`All bookings where createdAt ∈ ${data.period.from} → ${data.period.to} IST, ordered by createdAt desc. Shoot date = bookingDate.`}
+          breakable
+        >
           {data.bookings.length === 0 ? <Text style={styles.emptyText}>No bookings in this period.</Text> : (
             <View style={[styles.table, { borderColor: "#0e0e0e" }]}>
               <View style={[styles.headRow, { backgroundColor: "#0e0e0e" }]}>
@@ -255,7 +269,11 @@ export default function ReportDocument({ data }: { data: Payload }) {
           )}
         </Section>
 
-        <Section title={`Leads — detailed  (${fmtNum(data.leads.length)} records)`} subtitle={`All leads where createdAt ∈ ${data.period.from} → ${data.period.to} IST, ordered by createdAt desc.`}>
+        <Section
+          title={`Leads — detailed  (${fmtNum(data.leads.length)} records)`}
+          subtitle={`All leads where createdAt ∈ ${data.period.from} → ${data.period.to} IST, ordered by createdAt desc.`}
+          breakable
+        >
           {data.leads.length === 0 ? <Text style={styles.emptyText}>No leads in this period.</Text> : (
             <View style={[styles.table, { borderColor: "#1c3a5a" }]}>
               <View style={[styles.headRow, styles.headRowBlue]}>
@@ -267,7 +285,7 @@ export default function ReportDocument({ data }: { data: Payload }) {
               {data.leads.map((l, idx) => (
                 <View key={l.id} style={[styles.bodyRow, idx % 2 === 1 ? styles.bodyRowAltBlue : null] as any}>
                   <View style={[styles.bodyCell, { flex: 0.9 }] as any}><Text style={[styles.bodyText, styles.bodyTextCenter, { fontSize: 5.5 }] as any}>{fmtDateIST(l.createdAt)}</Text></View>
-                  <View style={[styles.bodyCell, { flex: 1.9 }] as any}><Text style={[styles.bodyText, styles.bodyTextBold, { fontSize: 5.5 }] as any}>{l.email}</Text><Text style={[styles.bodyText, styles.bodyTextMuted, { fontSize: 5 }] as any}>{l.phone}</Text></View>
+                  <View style={[styles.bodyCell, { flex: 1.9 }] as any}><Text style={[styles.bodyText, styles.bodyTextBold, { fontSize: 5.5 }] as any} wrap>{l.email}</Text></View>
                   <View style={[styles.bodyCell, { flex: 1.1 }] as any}><Text style={[styles.bodyText, { fontSize: 5.5 }] as any}>{l.phone}</Text></View>
                   <View style={[styles.bodyCell, { flex: 1.15 }] as any}><Text style={[styles.bodyText, { fontSize: 5.5 }] as any}>{l.enquiryType}</Text></View>
                   <View style={[styles.bodyCell, { flex: 0.95 }] as any}><Text style={[styles.bodyText, styles.bodyTextCenter, { fontSize: 5.5 }] as any}>{human(l.status)}</Text></View>
