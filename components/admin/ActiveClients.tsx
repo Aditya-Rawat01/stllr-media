@@ -3,12 +3,17 @@
 import { useState } from "react";
 
 export type Client = {
+  id: string;
   name: string | null;
   email: string;
   city: string | null;
   service: string | null;
   bookingDate: string;
+  assignedStaffId?: string | null;
+  assignedStaffName?: string | null;
 };
+
+const MAX_VISIBLE_CLIENTS = 10;
 
 function formatDate(iso: string) {
   try {
@@ -34,27 +39,27 @@ function ClientCard({ client }: { client: Client }) {
       tabIndex={0}
       onKeyDown={(e) => (e.key === "Enter" || e.key === " ") && setOpen((v) => !v)}
       className={[
-        "group flex cursor-pointer flex-col border bg-[#0e0e0e] p-4 transition-colors sm:p-5",
-        open ? "border-[#f0ede8]/15" : "border-[#1a1a1a] hover:border-[#1f1f1f]",
+        "group flex cursor-pointer flex-col rounded-xl border bg-[#0f0f0f] p-4 shadow-[0_10px_30px_rgba(0,0,0,0.18)] transition-all duration-200 sm:p-5",
+        open ? "border-[#f0ede8]/20 bg-[#111111]" : "border-[#1b1b1b] hover:-translate-y-0.5 hover:border-[#e63030]/40 hover:bg-[#111111]",
       ].join(" ")}
     >
       <div className="flex items-start gap-4">
-        <div className="flex h-9 w-9 shrink-0 items-center justify-center border border-[#1f1f1f] bg-[#111] font-[var(--font-bebas-neue)] text-[13px] tracking-[0.04em] text-[#f0ede8]/70">
+        <div className="flex h-10 w-10 shrink-0 items-center justify-center border border-[#e63030]/30 bg-[#1a1a1a] font-[var(--font-bebas-neue)] text-[14px] tracking-[0.04em] text-[#f0ede8]">
           {initial}
         </div>
         <div className="min-w-0 flex-1">
           <p className="truncate font-[var(--font-dm-sans)] text-[13px] font-medium leading-none text-[#f0ede8] sm:text-[14px]">
             {client.name || "—"}
           </p>
-          <p className="mt-1 truncate font-[var(--font-dm-sans)] text-[11px] tracking-[0.04em] text-[#f0ede8]/35">{client.email}</p>
+          <p className="mt-1 truncate font-[var(--font-dm-sans)] text-[11px] tracking-[0.04em] text-[#f0ede8]/40">{client.email}</p>
           <div className="mt-3 flex flex-wrap gap-2">
             {client.service && (
-              <span className="border border-[#1f1f1f] bg-[#0a0a0a] px-2 py-1 font-[var(--font-dm-sans)] text-[10px] tracking-[0.08em] text-[#f0ede8]/50 uppercase">
+              <span className="border border-[#e63030]/20 bg-[#e63030]/5 px-2 py-1 font-[var(--font-dm-sans)] text-[10px] tracking-[0.08em] text-[#f0ede8]/70 uppercase">
                 {client.service}
               </span>
             )}
             {client.city && (
-              <span className="border border-[#1a1a1a] bg-transparent px-2 py-1 font-[var(--font-dm-sans)] text-[10px] tracking-[0.08em] text-[#f0ede8]/25 uppercase">
+              <span className="border border-[#1f1f1f] bg-transparent px-2 py-1 font-[var(--font-dm-sans)] text-[10px] tracking-[0.08em] text-[#f0ede8]/30 uppercase">
                 {client.city}
               </span>
             )}
@@ -63,7 +68,7 @@ function ClientCard({ client }: { client: Client }) {
         <span
           className={[
             "hidden h-7 w-7 shrink-0 items-center justify-center border text-[10px] transition-colors sm:inline-flex",
-            open ? "border-[#f0ede8]/20 bg-[#f0ede8] text-[#080808]" : "border-[#1f1f1f] text-[#f0ede8]/20 group-hover:text-[#f0ede8]/40",
+            open ? "border-[#f0ede8]/20 bg-[#f0ede8] text-[#080808]" : "border-[#1f1f1f] text-[#f0ede8]/25 group-hover:text-[#f0ede8]/60",
           ].join(" ")}
           aria-hidden="true"
         >
@@ -73,7 +78,7 @@ function ClientCard({ client }: { client: Client }) {
 
       <div className="mt-4 flex items-center justify-between border-t border-[#1a1a1a] pt-3">
         <span className="font-[var(--font-dm-sans)] text-[10px] tracking-[0.12em] text-[#f0ede8]/25 uppercase">Booking</span>
-        <span className="font-[var(--font-dm-sans)] text-[11px] tracking-[0.04em] text-[#f0ede8]/60 tabular-nums">{formatDate(client.bookingDate)}</span>
+        <span className="font-[var(--font-dm-sans)] text-[11px] tracking-[0.04em] text-[#f0ede8]/70 tabular-nums">{formatDate(client.bookingDate)}</span>
       </div>
 
       {open && (
@@ -106,6 +111,9 @@ function ClientCard({ client }: { client: Client }) {
 }
 
 export default function ActiveClients({ clients }: { clients: Client[] }) {
+  const [showAll, setShowAll] = useState(false);
+  const visibleClients = showAll ? clients : clients.slice(0, MAX_VISIBLE_CLIENTS);
+
   return (
     <div>
       <div className="flex items-baseline justify-between gap-4">
@@ -124,11 +132,25 @@ export default function ActiveClients({ clients }: { clients: Client[] }) {
           <p className="mt-1 font-[var(--font-dm-sans)] text-[11px] text-[#f0ede8]/20">Confirmed or in-progress bookings will appear here.</p>
         </div>
       ) : (
-        <div className="mt-6 grid grid-cols-1 gap-3 sm:gap-4 md:grid-cols-2 xl:grid-cols-3">
-          {clients.map((c) => (
-            <ClientCard key={`${c.email}-${c.bookingDate}`} client={c} />
-          ))}
-        </div>
+        <>
+          <div className="mt-6 grid grid-cols-1 gap-3 sm:gap-4 md:grid-cols-2 xl:grid-cols-3">
+            {visibleClients.map((c) => (
+              <ClientCard key={`${c.email}-${c.bookingDate}`} client={c} />
+            ))}
+          </div>
+
+          {clients.length > MAX_VISIBLE_CLIENTS && (
+            <div className="mt-5 flex justify-center">
+              <button
+                type="button"
+                onClick={() => setShowAll((v) => !v)}
+                className="border border-[#e63030]/35 bg-[#e63030]/5 px-4 py-2 font-[var(--font-dm-sans)] text-[10px] tracking-[0.14em] text-[#f0ede8] uppercase transition-colors hover:border-[#e63030]/50 hover:bg-[#e63030]/10"
+              >
+                {showAll ? "Show less" : `Show all (${clients.length})`}
+              </button>
+            </div>
+          )}
+        </>
       )}
     </div>
   );
