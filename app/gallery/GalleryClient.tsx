@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
@@ -20,21 +20,22 @@ type GalleryItem = {
   year?: string;
 };
 
-// Dedicated structure — replace images/titles at will, keep shape stable
-// Using actual STLLR photography from /public/images/gallery (copied from /hero) — no Instagram scrape
+// Dedicated structure — 11 JPGs (Photography/Events only) + 2 actual videography MP4s — no repeats, no scrape
+// JPGs are no longer tagged Videography; Videography is now only the real .mp4 assets you added
 const GALLERY: GalleryItem[] = [
   { id: "g01", image: "/images/gallery/gill.jpg", title: "Gill — Stage Light", category: "Photography", year: "2024" },
   { id: "g02", image: "/images/gallery/king.jpg", title: "King — Monopoly Moves", category: "Events", year: "2024" },
   { id: "g03", image: "/images/gallery/badshah.jpg", title: "Badshah — Live", category: "Events", year: "2024" },
   { id: "g04", image: "/images/gallery/talwinder.jpg", title: "Talwinder — Concert", category: "Events", year: "2024" },
   { id: "g05", image: "/images/gallery/raga.jpg", title: "Raga — Shadows", category: "Photography", year: "2023" },
-  { id: "g06", image: "/images/gallery/gill.jpg", title: "Backstage — Gill Detail", category: "Photography", year: "2024" },
-  { id: "g07", image: "/images/gallery/king.jpg", title: "King — Portrait Cut", category: "Videography", year: "2024" },
-  { id: "g08", image: "/images/gallery/badshah.jpg", title: "Smoke — Badshah Frame", category: "Videography", year: "2024" },
-  { id: "g09", image: "/images/gallery/talwinder.jpg", title: "Talwinder — Crowd", category: "Photography", year: "2024" },
-  { id: "g10", image: "/images/gallery/raga.jpg", title: "Raga — Warm Grain", category: "Videography", year: "2023" },
-  { id: "g11", image: "/images/gallery/gill.jpg", title: "Still — Gill Close", category: "Events", year: "2024" },
-  { id: "g12", image: "/images/gallery/king.jpg", title: "Still — King Light", category: "Photography", year: "2024" },
+  { id: "g06", image: "/images/gallery/ap-dhillon-live.jpg", title: "AP Dhillon — India Tour", category: "Events", year: "2024" },
+  { id: "g07", image: "/images/gallery/talwinder-live-01.jpg", title: "Talwinder — No Photoshop Live 01", category: "Photography", year: "2024" },
+  { id: "g08", image: "/images/gallery/talwinder-live-02.jpg", title: "Talwinder — Live 02", category: "Events", year: "2024" },
+  { id: "g09", image: "/images/gallery/talwinder-live-03.jpg", title: "Talwinder — Live 03", category: "Photography", year: "2024" },
+  { id: "g10", image: "/images/gallery/seedhe-maut-live-01.jpg", title: "Seedhe Maut — Sneaker Fest 01", category: "Events", year: "2024" },
+  { id: "g11", image: "/images/gallery/seedhe-maut-live-02.jpg", title: "Seedhe Maut — Live 02", category: "Events", year: "2024" },
+  { id: "g12", image: "/images/gallery/tarunima-softness-videography.mp4", title: "Tarunima — Softness, Strength, Story", category: "Videography", year: "2024" },
+  { id: "g13", image: "/images/gallery/basketball-beer-videography.mp4", title: "Basketball × Beer Culture", category: "Videography", year: "2024" },
 ];
 
 const FILTERS = ["ALL", "PHOTOGRAPHY", "VIDEOGRAPHY", "EVENTS"] as const;
@@ -49,6 +50,23 @@ export default function GalleryClient() {
     if (filter === "ALL") return GALLERY;
     return GALLERY.filter((g) => g.category.toUpperCase() === filter);
   }, [filter]);
+
+  const isVideo = (src: string) => src.toLowerCase().endsWith(".mp4");
+
+  // Esc to close + lock scroll + click-outside already via backdrop onClick
+  useEffect(() => {
+    if (!lightbox) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setLightbox(null);
+    };
+    window.addEventListener("keydown", onKey);
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      window.removeEventListener("keydown", onKey);
+      document.body.style.overflow = prev;
+    };
+  }, [lightbox]);
 
   return (
     <section className="relative bg-[#080808] pt-[86px]">
@@ -122,17 +140,28 @@ export default function GalleryClient() {
                   aria-label={`Open ${item.title} fullscreen`}
                 >
                   <div className="relative w-full overflow-hidden bg-[#111]">
-                    {/* use plain img for natural ratio without forced aspect — next/image fill would need aspect wrapper */}
-                    <img
-                      src={item.image}
-                      alt={item.title}
-                      loading="lazy"
-                      decoding="async"
-                      className={[
-                        "h-auto w-full object-cover transition duration-[700ms] ease-[cubic-bezier(0.16,1,0.3,1)]",
-                        "group-hover:scale-[1.03]",
-                      ].join(" ")}
-                    />
+                    {isVideo(item.image) ? (
+                      <video
+                        src={item.image}
+                        muted
+                        loop
+                        playsInline
+                        autoPlay
+                        preload="metadata"
+                        className="h-auto w-full object-cover transition duration-[700ms] ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-[1.03]"
+                      />
+                    ) : (
+                      <img
+                        src={item.image}
+                        alt={item.title}
+                        loading="lazy"
+                        decoding="async"
+                        className={[
+                          "h-auto w-full object-cover transition duration-[700ms] ease-[cubic-bezier(0.16,1,0.3,1)]",
+                          "group-hover:scale-[1.03]",
+                        ].join(" ")}
+                      />
+                    )}
                     <div
                       className="absolute inset-0 opacity-0 transition-opacity duration-300 group-hover:opacity-100"
                       style={{
@@ -148,11 +177,17 @@ export default function GalleryClient() {
                       </p>
                       <p className="mt-1 font-[var(--font-bebas-neue)] text-[1.15rem] leading-none tracking-[0.01em] text-white">{item.title}</p>
                     </div>
-                    {/* corner hint */}
+                    {/* corner hint — play icon for video */}
                     <span className="absolute right-3 top-3 inline-flex h-6 w-6 items-center justify-center border border-white/10 bg-black/30 text-white/60 opacity-0 backdrop-blur-sm transition-opacity group-hover:opacity-100">
-                      <svg viewBox="0 0 11 11" width={10} height={10} fill="none" stroke="currentColor" strokeWidth={1.3}>
-                        <path d="M2 8.5 L8.5 2 M8.5 2 H3.4 M8.5 2 V7.2" />
-                      </svg>
+                      {isVideo(item.image) ? (
+                        <svg viewBox="0 0 11 11" width={10} height={10} fill="currentColor" aria-hidden="true">
+                          <path d="M3 3 L8 6 L3 9 Z" />
+                        </svg>
+                      ) : (
+                        <svg viewBox="0 0 11 11" width={10} height={10} fill="none" stroke="currentColor" strokeWidth={1.3}>
+                          <path d="M2 8.5 L8.5 2 M8.5 2 H3.4 M8.5 2 V7.2" />
+                        </svg>
+                      )}
                     </span>
                   </div>
                 </button>
@@ -211,13 +246,26 @@ export default function GalleryClient() {
                 </svg>
               </button>
             </div>
-            <div className="flex flex-1 items-center justify-center p-4 sm:p-8" onClick={(e) => e.stopPropagation()}>
-              <div className="relative flex max-h-[78vh] max-w-[92vw] items-center justify-center">
-                <img
-                  src={lightbox.image}
-                  alt={lightbox.title}
-                  className="max-h-[78vh] w-auto max-w-[92vw] object-contain shadow-[0_24px_80px_rgba(0,0,0,0.6)]"
-                />
+            <div className="flex flex-1 items-center justify-center p-4 sm:p-8">
+              <div
+                className="relative flex max-h-[78vh] max-w-[92vw] items-center justify-center"
+                onClick={(e) => e.stopPropagation()}
+              >
+                {isVideo(lightbox.image) ? (
+                  <video
+                    src={lightbox.image}
+                    controls
+                    autoPlay
+                    playsInline
+                    className="max-h-[78vh] w-auto max-w-[92vw] object-contain shadow-[0_24px_80px_rgba(0,0,0,0.6)]"
+                  />
+                ) : (
+                  <img
+                    src={lightbox.image}
+                    alt={lightbox.title}
+                    className="max-h-[78vh] w-auto max-w-[92vw] object-contain shadow-[0_24px_80px_rgba(0,0,0,0.6)]"
+                  />
+                )}
               </div>
             </div>
             <div className="flex items-center justify-center gap-2 pb-6">
