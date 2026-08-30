@@ -4,10 +4,12 @@ import { users } from "@/lib/db/schema";
 import { eq } from "drizzle-orm";
 
 export async function getCurrentUser() {
-  const { userId } = await auth();
+  let userId: string | null = null;
+  try { userId = (await auth()).userId; } catch { return null; }
   if (!userId) return null;
-  const u = await currentUser();
-  let dbUser = await db.select().from(users).where(eq(users.clerkId, userId)).then(r=>r[0]);
+  const u = await currentUser().catch(() => null);
+  let dbUser: any = null;
+  try { dbUser = await db.select().from(users).where(eq(users.clerkId, userId)).then(r=>r[0]); } catch { dbUser = null; }
   // ponytail: fallback auto-create if webhook missed (localhost dev without public URL)
   if (!dbUser && u) {
     const email = u.emailAddresses[0]?.emailAddress || "";

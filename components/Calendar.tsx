@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
+import { useUser } from "@clerk/nextjs";
 import { formatIST, getDayName } from "@/lib/timezone";
 import { formatBookingStatus } from "@/lib/format";
 
@@ -23,6 +24,12 @@ interface CalendarProps {
 export default function Calendar({ bookings }: CalendarProps) {
     const [currentMonth, setCurrentMonth] = useState(new Date());
     const [selectedDate, setSelectedDate] = useState<string | null>(null);
+    const { user } = useUser();
+    const [isAdmin, setIsAdmin] = useState(false);
+    useEffect(() => {
+        if (!user) { setIsAdmin(false); return; }
+        fetch("/api/me").then(r => r.ok ? r.json() : null).then(m => setIsAdmin(m?.role === "admin")).catch(() => setIsAdmin(false));
+    }, [user]);
     const todayIST = formatIST(new Date());
     const isPastBooking = (bookingDate: string) =>
         formatIST(bookingDate) < todayIST;
@@ -319,7 +326,7 @@ export default function Calendar({ bookings }: CalendarProps) {
                                                 {booking.city}
                                             </p>
                                         )}
-                                        {booking.assignedStaffName && (
+                                        {isAdmin && booking.assignedStaffName && (
                                             <p className="mt-1 text-xs text-green-400">
                                                 Assigned to: {booking.assignedStaffName}
                                             </p>
